@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel Room Recommendations</title>
+    <link rel="icon" type="image/x-icon" href="https://cdn3d.iconscout.com/3d/premium/thumb/hotel-8504656-6699344.png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/css/select2.min.css" rel="stylesheet" />
+
+    <style>
+        body {
+            font-size: 14px;
+            font-family: 'Helvetica Now', Helvetica, Arial, sans-serif;
+        }
+
+        .bg-dark {
+        /* Gradient background from a light blue to a lighter blue for a modern look */
+            background: linear-gradient(to right, #6dd5ed, #ffffff);
+            color: #313131; /* Dark gray text color for contrast */
+            padding: 10px 0;
+            text-align: center;
+            /* Text shadow for depth */
+            text-shadow: 1px 1px 2px #ffffff;
+        }
+
+        .bg-dark h1 {
+            font-size: 2.5rem; /* Larger font size for the title */
+            font-weight: 700; /* Bold font weight */
+            margin-bottom: 0; /* Remove any default margin */
+        }
+
+        /* Ensure the form is not too wide on larger screens */
+        #searchForm {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            max-width: 910px; /* Adjust as needed */
+            margin: 0 auto;
+            background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent white background */
+            padding: 15px;
+            border-radius: 12px;
+        }
+
+        #searchForm .row {
+            margin-bottom: 1rem; /* Spacing between rows */
+        }
+
+        /* Style for form elements */
+        .form-label {
+            margin-bottom: 0.5rem;
+        }
+
+        .form-control, .form-select {
+            margin-bottom: 1rem; /* Spacing between form elements */
+        }
+
+        /* Optional: Add a shadow to the form container for better contrast */
+        #searchForm {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-label{
+            font-size: 18px;
+            color: black;
+        }
+
+        /* Select2 specific styles for better visibility */
+        .select2-container--default .select2-selection--multiple {
+            background-color: white; /* Light background for the select box */
+            color: black; /* Black text for readability */
+        }
+
+        .select2-container--default .select2-selection--multiple .select2-selection__choice {
+            background-color: #e4e4e4; /* Slightly darker background for the choices */
+            color: black; /* Black text for readability */
+        }
+
+        .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+            color: #c1c1c1; /* Slightly lighter color for the remove icons */
+        }
+
+        /* Adjusting dropdown items for better visibility */
+        .select2-container--default .select2-results__option {
+            color: black; /* Black text for dropdown items */
+            background-color: white; /* White background for dropdown items */
+        }
+
+        .select2-container--default .select2-results__option--highlighted[aria-selected] {
+            background-color: #e4e4e4; /* Slightly darker background for highlighted dropdown item */
+            color: black; /* Black text for readability */
+        }
+
+        .card-text{
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .total-price-info {
+            margin-top: 10px;
+        }
+
+        /* Display notify result */
+        .results-notify-success{
+            background-color: #ECFFFF;
+            font-size: 32px;
+            color: lightseagreen;
+            text-align: center;
+        }
+
+        .results-notify-fail{
+            background-color: #ECFFFF;
+            font-size: 32px;
+            color: red;
+            text-align: center;
+        }
+
+        .card-title{
+            font-size: 20px;
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        /* Style for the image slider container */
+        .image-slider img {
+            width: 100%; /* Ensure images fill their containers */
+            height: 100%; /* Ensure images fill their containers */
+            object-fit: cover; /* This makes the images cover the area nicely */
+        }
+
+        .img-name {
+            font-size: 14px;
+        }
+
+        /* Style for button */
+        .btn-link {
+                display: inline-block;
+                padding: 5px 10px;
+                background-color: #007bff;
+                color: #fff;
+                font-size: 14px;
+                font-weight: bold;
+                text-decoration: none;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                margin-bottom: 10px;
+            }
+
+        .btn-link:hover {
+            color:lightgreen;
+            background-color: #0056b3; /* Darker blue color on hover */
+        }
+
+        .title-info {
+            color: #007bff;
+            font-weight: bold;
+        }
+
+        /* Style for reviews */
+        .about-reviews {
+            text-align: center; /* Center the text */
+            margin: 12px auto; /* Add some space around the box */
+            padding: 10px; /* Padding inside the box */
+            border: 1px solid #ddd; /* A light border for the box */
+            border-radius: 5px; /* Rounded corners */
+            background-color: #f8f8f8; /* Light background for the box */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+            display: block; /* To wrap content and allow centering */
+            width: auto; /* Let the width be content-dependent */
+            max-width: 100%; /* Ensure it doesn't overflow the card */
+            margin-left: auto; /* Auto margins for horizontal centering */
+            margin-right: auto;
+        }
+
+        /* Optional: Style the star symbols and text differently */
+        .title-info-reviews{
+            font-weight: bold; /* Make the text bold */
+            color: lightseagreen; /* Dark gray color for better readability */
+            display: inline; /* Keep the stars and text inline */
+            font-size: 1.2em; /* Slightly larger text */
+        }
+
+        /* Style for the box that contain each review */
+        .review-box {
+            border: 1px solid #ccc; /* Light grey border */
+            border-radius: 5px; /* Rounded corners */
+            padding: 10px; /* Padding inside the box */
+            margin: 10px 0; /* Margin outside the box */
+            background-color: #f9f9f9; /* Light grey background */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+        }
+
+        .review-text, .sentiment-label {
+            font-size: 14px; /* Adjust the size as needed */
+            margin: 5px 0; /* Spacing between review and label */
+        }
+
+        .sentiment-label {
+            font-weight: bold; /* Make the sentiment label bold */
+            color: #333; /* Darker text for the sentiment */
+        }
+
+        /* Style for dividing line between review entries, if desired */
+        .review-divider {
+            height: 1px;
+            background-color: #ccc;
+            margin: 10px 0;
+        }
+
+/* ============================================================================================== */
+    /* Some big updates */
+    
+    /* Fixed Sidebar for Input */
+        header {
+            width: 100%; /* Ensures the header spans the full width */
+            position: fixed; /* Keeps the header at the top */
+            top: 0; /* Aligns the header at the very top */
+            left: 0; /* Aligns the header to the left edge */
+            z-index: 1000; /* Ensures the header stays above all other content */
+            height: 60px; /* Define a fixed height for the header */
+            display: flex;
+            justify-content: center; /* Centers content horizontally */
+            align-items: center; /* Centers content vertically */
+        }
+
+        /* Utilities check box Css */
+        #utilities fieldset {
+            border: 2px solid #ccc;
+            padding: 10px;
+            margin-top: 10px;
+        }
+
+        #utilities legend {
+            font-size: 18px;
+            font-weight: bold;
+            padding: 5px;
+            background-color: #f8f8f8;
+        }
+
+        #utilities label {
+            display: block ;
+            margin: 2px 0; /* Tighter vertical spacing */
+            padding: 2px 5px; /* Padding for better text alignment and spacing */
+            line-height: 1.5; /* Adjust line height to fit content better */
+            box-sizing: border-box; /* Includes padding and border in the height calculation */
+        }
+
+        #utilities input[type="checkbox"] {
+            margin-right: 5px;
+        }
+
+        /* Uncheck all checkbox button */
+        #clearSelections {
+            margin-top: 10px;
+        }
+
+        #inputSection {
+            position: fixed;
+            top: 60px; /* Start directly below the header */
+            left: 0;
+            width: 300px;
+            height: calc(100vh - 60px); /* Adjust height to take full vertical space minus header */
+            overflow-y: auto;
+            background-color: #f8f8f8;
+            padding: 10px;
+            border-right: 1px solid #ddd;
+            box-sizing: border-box; /* Includes padding in width calculation */
+        }
+
+        #searchForm {
+            display: flex;
+            flex-direction: column; /* Ensures elements are stacked vertically */
+            border: 3px solid #007bff; /* Adds a blue border around the section */
+        }
+
+        .form-group {
+            margin-bottom: 8px; /* Provide sufficient spacing between form elements */
+            display: flex; /* Aligns label and input field inline */
+            flex-direction: column; /* Stacks label above the input field */
+            align-items: flex-start; /* Aligns items to the left */
+            width: 100%; /* Full width of the container */
+        }
+
+        .form-control, .form-select {
+            width: 100%; /* Ensures select elements take full available width */
+            display: block; /* Ensures elements are not inline */
+        }
+
+        #results {
+            margin-left: 300px;
+            margin-top: 60px;
+            padding: 10px;
+        }
+        
+        /* Style for information hover */
+        .tooltip-container {
+            position: relative;
+            display: block; /* or 'block' depending on layout needs */
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .tooltiptext {
+            visibility: hidden;
+            max-width: 400px;
+            height: auto;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            border-radius: 5px;
+            padding: 5px;
+            
+            /* Position the tooltip */
+            position: absolute;
+            z-index: 1;
+            top: 100%; /* Adjust this value as needed */
+            left: 10%;
+            transform: translateX(-10%);
+            transition: opacity 0.25s ease-in-out, visibility 0.25s ease-in-out;
+            opacity: 0;
+        }
+
+        .tooltip-container:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+            top: calc(100% + 5px); /* Adjust for spacing */
+        }
+
+        /* Style container to put two hotels side by side in one container */
+        /* Ensures the .card.mb-3 container is flex and allows items to line up side by side */
+        .card.mb-3 {
+            position: relative; /* Ensures the positioning context is set for absolute children */
+            display: block; /* Makes sure it's suitable for containing absolute children */ 
+            background-color: #E3FFFF;
+            margin: 20px;
+            box-sizing: border-box;
+            min-height: 470px;
+            max-height: 500px;
+            overflow: auto; /* Keeps everything neat */
+        }
+
+        .card-body {
+            position: absolute; /* Allows precise positioning */
+            top: 0; /* Align top edges to the container's top */
+            width: 50%; /* Each card body takes half the width */
+            height: 100%; /* Stretch to container height */
+            padding: 10px;
+            box-sizing: border-box; /* Include padding and border in the element's width */
+        }
+
+        .card-body:first-child {
+            left: 0; /* Position first div to the left */
+        }
+
+        .card-body:last-child {
+            left: 50%; /* Position second div to the right */
+        }
+
+        /* Style for modal (pop-up review tab) */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgb(0,0,0); /* Fallback color */
+            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto; /* 15% from the top and centered */
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%; /* Could be more or less, depending on screen size */
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+    
+<body>
+    <header class="bg-dark text-white text-center p-3">
+        <h1>HỆ THỐNG GỢI Ý ĐẶT PHÒNG ĐÀ NẴNG</h1>
+    </header>
+    <div id="inputSection">
+        <form id="searchForm">
+            <div class="form-group">
+                <label for="checkinDate" class="form-label">Ngày nhận phòng</label>
+                <input type="text" class="form-control datepicker" id="checkinDate">
+            </div>
+            <div class="form-group">
+                <label for="checkoutDate" class="form-label">Ngày trả phòng</label>
+                <input type="text" class="form-control datepicker" id="checkoutDate">
+            </div>
+            <div class="form-group">
+                <label for="roomType" class="form-label">Loại phòng</label>
+                <select class="form-select" id="roomType">
+                    <option disabled selected>Chọn loại phòng...</option>
+                    <option value="giường đơn">Giường đơn</option>
+                    <option value="giường đôi">Giường đôi</option>
+                    <option value="giường tầng">Giường tầng</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="utilities" class="form-label">Tiện ích</label>
+                <div id="utilities">
+                    <!-- Tầm nhìn -->
+                    <fieldset>
+                        <legend>Tầm nhìn</legend>
+                        <label><input type="checkbox" value="Nhìn ra vườn">Nhìn ra vườn</label>
+                        <label><input type="checkbox" value="Nhìn ra địa danh nổi tiếng">Nhìn ra địa danh nổi tiếng</label>
+                        <label><input type="checkbox" value="Nhìn ra sông">Nhìn ra sông</label>
+                    </fieldset>
+            
+                    <!-- Thiết kế -->
+                    <fieldset>
+                        <legend>Thiết kế</legend>
+                        <label><input type="checkbox" value="Ban công">Ban công</label>
+                        <label><input type="checkbox" value="Sân hiên">Sân hiên</label>
+                        <label><input type="checkbox" value="Sân trong">Sân trong</label>
+                        <label><input type="checkbox" value="Bếp riêng">Bếp riêng</label>
+                        <label><input type="checkbox" value="Hồ bơi riêng">Hồ bơi riêng</label>
+                        <label><input type="checkbox" value="Phòng tắm riêng trong phòng">Phòng tắm riêng trong phòng</label>
+                    </fieldset>
+            
+                    <!-- Nội thất -->
+                    <fieldset>
+                        <legend>Nội thất</legend>
+                        <label><input type="checkbox" value="Điều hòa không khí">Điều hòa không khí</label>
+                        <label><input type="checkbox" value="TV màn hình phẳng">TV màn hình phẳng</label>
+                        <label><input type="checkbox" value="Hệ thống cách âm">Hệ thống cách âm</label>
+                        <label><input type="checkbox" value="WiFi miễn phí">WiFi miễn phí</label>
+                        <label><input type="checkbox" value="Hệ thống cách âm">Minibar</label>
+                    </fieldset>
+                </div>
+                <button id="clearSelections">Bỏ chọn tất cả</button>
+            </div>
+            
+            <div class="form-group">
+                <label for="budget" class="form-label">Ngân sách hiện có (đ)</label>
+                <input type="number" class="form-control" id="budget">
+            </div>
+            <button type="submit" class="btn btn-primary">Tìm kiếm</button>
+        </form>
+    </div>
+    <div id="results">
+        <!-- Results will be dynamically inserted here -->
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js"></script> -->
+    <script>
+        $(document).ready(function() {
+            // Initialize Flatpickr
+            $('.datepicker').flatpickr({
+                dateFormat: "d/m/Y",
+            });
+
+            // Initialize display for checkbox count
+            $('#utilities').before('<div id="selectedCountDisplay">0 tiện ích đã chọn</div>');
+
+            // Add event listeners for checkboxes
+            $('#utilities input[type="checkbox"]').each(function() {
+                $(this).on('change', function() {
+                    const selectedCount = $('#utilities input[type="checkbox"]:checked').length;
+                    $('#selectedCountDisplay').text(`${selectedCount} tiện ích đã chọn`);
+                });
+            });
+
+            // Button to clear all selections
+            $('#clearSelections').on('click', function(event) {
+                event.preventDefault(); // Prevent any form submission or other default actions
+                $('#utilities input[type="checkbox"]').each(function() {
+                    $(this).prop('checked', false).trigger('change');
+                });
+            });
+
+            // Event delegation for dynamically created 'view-reviews-btn'
+            $('#results').on('click', '.view-reviews-btn', function(event) {
+                event.preventDefault(); // Prevent the default anchor click behavior
+                const index = $(this).data('index'); // Using jQuery to get data attribute
+                $(`#modal-${index}`).show(); // Show the modal using jQuery
+            });
+
+            // Event delegation for dynamically created 'close' button in modals
+            $('#results').on('click', '.close', function() {
+                $(this).closest('.modal').hide(); // Hide the modal using jQuery
+            });
+
+            // Handle clicking outside of modal to close it
+            $(window).on('click', function(event) {
+                if ($(event.target).hasClass('modal')) {
+                    $(event.target).hide();
+                }
+            });
+        });
+
+        document.getElementById('searchForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const checkinDate = document.getElementById('checkinDate').value;
+            const checkoutDate = document.getElementById('checkoutDate').value;
+            const roomType = document.getElementById('roomType').value;
+            const utilities = Array.from(document.querySelectorAll('#utilities input[type="checkbox"]:checked')).map(input => input.value);
+            const budget = document.getElementById('budget').value;
+
+            console.log('Sending Search Data:', { checkinDate, checkoutDate, roomType, utilities, budget });
+
+            fetch('/search', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ checkinDate, checkoutDate, roomType, utilities, budget })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok ' + response.statusText);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Search Results:', data);
+                const resultsContainer = document.getElementById('results');
+                console.log(resultsContainer); 
+                if (data.length === 0) {
+                    resultsContainer.innerHTML = '<p class="results-notify-fail">Không tìm thấy phòng phù hợp !!!</p>';
+                    console.log('No hotels found');
+                } else {
+                    resultsContainer.innerHTML = `<p class="results-notify-success">Tìm thấy ${data.length} phòng.</p>`;
+                    console.log(`Hotels found: ${data.length}`);
+
+                    let hotelDiv = null;
+                    data.forEach((hotel, index) => {
+                        if (index % 2 === 0) { // Create new container for each pair of hotels
+                            hotelDiv = document.createElement('div');
+                            hotelDiv.className = 'card mb-3';
+                            resultsContainer.appendChild(hotelDiv);
+                        }
+
+                        const cardBody = document.createElement('div');
+                        cardBody.className = 'card-body';
+
+                        const title = document.createElement('h3');
+                        title.className = 'card-title';
+                        title.textContent = `${index + 1}. Khách sạn: ${hotel.hotel_name}`;
+                        cardBody.appendChild(title);
+
+                        const sliderContainer = document.createElement('div');
+                        sliderContainer.className = 'image-slider';
+                        sliderContainer.style.display = 'flex';
+                        sliderContainer.style.maxWidth = '410px';
+                        sliderContainer.style.gap = '10px';
+                        sliderContainer.style.overflowX = 'auto';
+
+                        hotel.images.forEach(image => {
+                            const imgContainer = document.createElement('div');
+                            imgContainer.style.flex = '0 0 auto';
+                            imgContainer.style.width = '200px';
+                            imgContainer.style.height = 'auto';
+                            imgContainer.style.display = 'flex';
+                            imgContainer.style.flexDirection = 'column';
+                            imgContainer.style.alignItems = 'center';
+
+                            const img = document.createElement('img');
+                            img.src = image.photo_link;
+                            img.alt = image.name;
+                            img.style.width = '100%';
+                            img.style.height = '150px';
+                            img.style.objectFit = 'cover';
+
+                            const imgName = document.createElement('span');
+                            imgName.textContent = image.name;
+                            imgName.style.color = '#000';
+                            imgName.style.fontSize = '14px';
+                            imgName.style.marginTop = '5px';
+                            imgName.style.wordWrap = 'break-word';
+
+                            imgContainer.appendChild(img);
+                            imgContainer.appendChild(imgName);
+                            sliderContainer.appendChild(imgContainer);
+                        });
+
+                        cardBody.appendChild(sliderContainer);
+
+                        const details = `
+                            <div id="room-info" class="tooltip-container">
+                                <p class="card-text"><span class="title-info">Loại phòng:</span> Di chuột để xem</p>
+                                <span class="tooltiptext">${hotel.room_type}</span>
+                            </div>
+                            <div id="amenities-info" class="tooltip-container">
+                                <p class="card-text"><span class="title-info">Tiện ích sẵn có:</span> Di chuột để xem</p>
+                                <span class="tooltiptext">${hotel.utilities}</span>
+                            </div>
+                            <p class="card-text total-price-info"><span class="title-info">Tổng tiền phòng:</span> ${new Intl.NumberFormat('vi-VN').format(hotel.total_price)}đ</p>
+                            <a href="${hotel.link}" target="_blank" class="btn btn-link">Đặt ngay</a>
+                            <a href="#" class="btn btn-link view-reviews-btn" data-index="${index}">Xem đánh giá</a>
+                            <div id="modal-${index}" class="modal">
+                                <div class="modal-content">
+                                    <span class="close">&times;</span>
+                                    <h3 class="card-title">${index + 1}. Khách sạn: ${hotel.hotel_name}</h3>
+                                    <p class="card-text"><span class="title-info">Điểm đánh giá khách sạn:</span> ${hotel.review_score}</p>
+                                    <p class="card-text"><span class="title-info">Tổng số đánh giá về khách sạn:</span> ${hotel.review_count}</p>
+                                    <p class="card-text"><span class="title-info">Tổng quan về đánh giá:</span> ${hotel.overview_info}</p>
+                                    <div class="about-reviews">
+                                        <span class="title-info-reviews">⭐⭐⭐Đánh giá về khách sạn:⭐⭐⭐</span>
+                                    </div>
+                                    <div class="reviews-container">
+                                        ${hotel.reviews_label ? formatReviews(hotel.reviews_label) : '<p>No Reviews Available</p>'}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        cardBody.insertAdjacentHTML('beforeend', details);
+                        hotelDiv.appendChild(cardBody);
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('There has been a problem with your fetch operation:', error);
+            });
+        });
+
+        // Process reviews for displaying in a proper format
+        function formatReviews(reviewsLabel) {
+            let formattedReviews = '';
+            if (reviewsLabel) {
+                const reviews = reviewsLabel; // Assuming reviewsLabel is already an object
+                for (const [aspect, sentiment] of Object.entries(reviews)) {
+                    // Wrap each review and sentiment label in a div with class 'review-box'
+                    formattedReviews += `
+                        <div class="review-box">
+                            <p class="review-text">${aspect}</p>
+                            <p class="sentiment-label">${sentiment}</p>
+                        </div>
+                        <div class="review-divider"></div> <!-- Optional dividing line -->
+                    `;
+                }
+            } else {
+                formattedReviews = '<p>No Reviews Available</p>';
+            }
+            return formattedReviews;
+        }
+    </script>
+</body>
+</html>
